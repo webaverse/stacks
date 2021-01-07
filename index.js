@@ -668,7 +668,7 @@ const stacksMesh = (() => {
 
   (async () => {
     const fortniteMesh = await new Promise((accept, reject) => {
-      gltfLoader.load(`./street-assets/fortnite.glb`, function(object) {
+      gltfLoader.load(`https://webaverse.github.io/street-assets/fortnite.glb`, function(object) {
         object = object.scene;
         
         object.traverse(o => {
@@ -1300,7 +1300,7 @@ const stacksMesh = (() => {
     const rng = alea('lol');
     
     const modularMesh = await new Promise((accept, reject) => {
-      gltfLoader.load(`./street-assets/stacks.glb`, function(object) {
+      gltfLoader.load(`https://webaverse.github.io/street-assets/stacks.glb`, function(object) {
         object = object.scene;
 
         accept(object);
