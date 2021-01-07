@@ -29,7 +29,7 @@ const localMatrix = new THREE.Matrix4();
 const gltfLoader = new GLTFLoader();
 const textureLoader = new THREE.TextureLoader();
 
-const rootScene = new THREE.Scene();
+const rootScene = new THREE.Object3D();
 app.object.add(rootScene);
 
 /* const ambientLight = new THREE.AmbientLight(0xFFFFFF);
