@@ -174,7 +174,7 @@ const stacksMesh = (() => {
                 .applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(quaternion))
                 .applyMatrix4(new THREE.Matrix4().makeTranslation(ax * w, ay * w, az * w));
               _mergeGeometry(g, {
-                position: new THREE.Vector3(ax * w, ay * w, az * w).add(new THREE.Vector3(0, 0, -w/2).applyQuaternion(quaternion)),
+                position: new THREE.Vector3(ax * w, ay * w, az * w).add(new THREE.Vector3(0, w/2, -w/2).applyQuaternion(quaternion)),
                 quaternion,
                 scale: new THREE.Vector3(w, w, 0.1).divideScalar(2),
               });
@@ -189,7 +189,7 @@ const stacksMesh = (() => {
                 .applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(quaternion))
                 .applyMatrix4(new THREE.Matrix4().makeTranslation(ax * w, ay * w, az * w));
               _mergeGeometry(g, {
-                position: new THREE.Vector3(ax * w, ay * w, az * w).add(new THREE.Vector3(0, 0, -w/2).applyQuaternion(quaternion)),
+                position: new THREE.Vector3(ax * w, ay * w, az * w).add(new THREE.Vector3(0, w/2, -w/2).applyQuaternion(quaternion)),
                 quaternion,
                 scale: new THREE.Vector3(w, w, 0.1).divideScalar(2),
               });
@@ -206,7 +206,7 @@ const stacksMesh = (() => {
                 .applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(quaternion))
                 .applyMatrix4(new THREE.Matrix4().makeTranslation(ax * w, ay * w, az * w));
               _mergeGeometry(g, {
-                position: new THREE.Vector3(ax * w, ay * w, az * w).add(new THREE.Vector3(0, 0, -w/2).applyQuaternion(quaternion)),
+                position: new THREE.Vector3(ax * w, ay * w, az * w).add(new THREE.Vector3(0, w/2, -w/2).applyQuaternion(quaternion)),
                 quaternion,
                 scale: new THREE.Vector3(w, w, 0.1).divideScalar(2),
               });
@@ -221,7 +221,7 @@ const stacksMesh = (() => {
                 .applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(quaternion))
                 .applyMatrix4(new THREE.Matrix4().makeTranslation(ax * w, ay * w, az * w));
               _mergeGeometry(g, {
-                position: new THREE.Vector3(ax * w, ay * w, az * w).add(new THREE.Vector3(0, 0, -w/2).applyQuaternion(quaternion)),
+                position: new THREE.Vector3(ax * w, ay * w, az * w).add(new THREE.Vector3(0, w/2, -w/2).applyQuaternion(quaternion)),
                 quaternion,
                 scale: new THREE.Vector3(w, w, 0.1).divideScalar(2),
               });
