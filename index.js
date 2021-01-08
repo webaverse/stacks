@@ -130,6 +130,11 @@ const stacksMesh = (() => {
           0,
           Math.floor(-20 + rng() * 40),
         );
+        if (buildingPosition.x <= -1 && buildingPosition.x + buildingSize.x > -1) {
+          buildingPosition.x = -buildingSize.x - 1;
+        } else if (buildingPosition.x < 2) {
+          buildingPosition.x = 2;
+        }
 
         const _fits = () => {
           for (let dx = 0; dx < buildingSize.x; dx++) {
