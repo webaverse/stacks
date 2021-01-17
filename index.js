@@ -29,8 +29,21 @@ const localMatrix = new THREE.Matrix4();
 const gltfLoader = new GLTFLoader();
 const textureLoader = new THREE.TextureLoader();
 
+function _makePromise() {
+  let accept, reject;
+  const p = new Promise((a, r) => {
+    accept = a;
+    reject = r;
+  });
+  p.accept = accept;
+  p.reject = reject;
+  return p;
+}
+
 const rootScene = new THREE.Object3D();
 app.object.add(rootScene);
+
+const loadPromises = [];
 
 /* const ambientLight = new THREE.AmbientLight(0xFFFFFF);
 rootScene.add(ambientLight);
@@ -76,8 +89,8 @@ const stacksMesh = (() => {
   const w = 4;
 
   (async () => {
-    const fortniteMesh = await new Promise((accept, reject) => {
-      gltfLoader.load(`https://webaverse.github.io/street-assets/fortnite.glb`, function(object) {
+    const p = new Promise((accept, reject) => {
+      gltfLoader.load(`./street-assets/fortnite.glb`, function(object) {
         object = object.scene;
         
         object.traverse(o => {
@@ -89,6 +102,8 @@ const stacksMesh = (() => {
         accept(object);
       }, function progress() {}, reject);
     });
+    loadPromises.push(p);
+    const fortniteMesh = await p;
     const floorMesh = fortniteMesh.getObjectByName('floor');
     const wallMesh = fortniteMesh.getObjectByName('wall');
     const rampMesh = fortniteMesh.getObjectByName('ramp');
@@ -624,14 +639,19 @@ const stacksMesh = (() => {
 
       const prefix = 'Vol_21_4';
 
-      const diffuse1 = textureLoader.load(`https://webaverse.github.io/street-assets/textures/${prefix}_Base_Color.jpg`);
+      const diffuse1Promise = _makePromise();
+      const diffuse1 = textureLoader.load(`https://webaverse.github.io/street-assets/textures/${prefix}_Base_Color.jpg`, diffuse1Promise.accept);
       diffuse1.wrapS = THREE.RepeatWrapping;
       diffuse1.wrapT = THREE.RepeatWrapping;
       diffuse1.anisotropy = 16;
-      const normal1 = textureLoader.load(`https://webaverse.github.io/street-assets/textures/${prefix}_Normal.jpg`);
+      loadPromises.push(diffuse1Promise);
+
+      const normal1Promise = _makePromise();
+      const normal1 = textureLoader.load(`https://webaverse.github.io/street-assets/textures/${prefix}_Normal.jpg`, normal1Promise.accept);
       normal1.wrapS = THREE.RepeatWrapping;
       normal1.wrapT = THREE.RepeatWrapping;
       normal1.anisotropy = 16;
+      loadPromises.push(normal1Promise);
 
       const material = new THREE.ShaderMaterial({
         uniforms: {
@@ -714,7 +734,7 @@ const stacksMesh = (() => {
     const rng = alea('lol');
     
     const modularMesh = await new Promise((accept, reject) => {
-      gltfLoader.load(`https://webaverse.github.io/street-assets/stacks.glb`, function(object) {
+      gltfLoader.load(`./street-assets/stacks.glb`, function(object) {
         object = object.scene;
 
         accept(object);
@@ -983,7 +1003,7 @@ const stacksMesh = (() => {
 app.object.add(stacksMesh);
 
 (async () => {
-  const sakuraMesh = await new Promise((accept, reject) => {
+  const p = new Promise((accept, reject) => {
     gltfLoader.load(`https://webaverse.github.io/street-assets/sakura.glb`, function(object) {
       // console.log('loaded', object);
       object = object.scene;
@@ -996,6 +1016,8 @@ app.object.add(stacksMesh);
       // render();
     }, function progress() {}, reject);
   });
+  loadPromises.push(p);
+  const sakuraMesh = await p;
   for (const parcelSpec of parcelSpecs) {
     const m = sakuraMesh.clone();
     m.position.copy(parcelSpec.position)
@@ -1003,3 +1025,9 @@ app.object.add(stacksMesh);
     app.object.add(m);
   }
 })();
+
+app.addEventListener('load', e => {
+  e.waitUntil(Promise.all(loadPromises).then(() => {
+    loadPromises.length = 0;
+  }));
+});
