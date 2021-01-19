@@ -90,7 +90,7 @@ const stacksMesh = (() => {
 
   (async () => {
     const p = new Promise((accept, reject) => {
-      gltfLoader.load(`./street-assets/fortnite.glb`, function(object) {
+      gltfLoader.load(`https://webaverse.github.io/street-assets/fortnite.glb`, function(object) {
         object = object.scene;
         
         object.traverse(o => {
