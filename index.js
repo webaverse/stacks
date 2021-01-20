@@ -734,7 +734,7 @@ const stacksMesh = (() => {
     const rng = alea('lol');
     
     const modularMesh = await new Promise((accept, reject) => {
-      gltfLoader.load(`./street-assets/stacks.glb`, function(object) {
+      gltfLoader.load(`https://webaverse.github.io/street-assets/stacks.glb`, function(object) {
         object = object.scene;
 
         accept(object);
