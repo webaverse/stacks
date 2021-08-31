@@ -8,6 +8,7 @@ import metaversefile from 'metaversefile';
 const {useFrame, useLocalPlayer, useLoaders, useUi, usePhysics} = metaversefile;
 
 const {gltfLoader} = useLoaders();
+const physics = usePhysics();
 
 const parcelSize = 16;
 const width = 10;
@@ -1026,4 +1027,6 @@ export default () => {
       object.add(m);
     }
   })();
+  
+  return object;
 };
