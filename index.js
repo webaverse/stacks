@@ -8,7 +8,6 @@ import metaversefile from 'metaversefile';
 const {useFrame, useLocalPlayer, useLoaders, useUi, usePhysics} = metaversefile;
 
 const {gltfLoader} = useLoaders();
-const physics = usePhysics();
 
 const parcelSize = 16;
 const width = 10;
@@ -33,17 +32,19 @@ const localEuler = new THREE.Euler();
 const localMatrix = new THREE.Matrix4();
 const textureLoader = new THREE.TextureLoader();
 
+function _makePromise() {
+  let accept, reject;
+  const p = new Promise((a, r) => {
+    accept = a;
+    reject = r;
+  });
+  p.accept = accept;
+  p.reject = reject;
+  return p;
+}
+
 export default () => {
-  function _makePromise() {
-    let accept, reject;
-    const p = new Promise((a, r) => {
-      accept = a;
-      reject = r;
-    });
-    p.accept = accept;
-    p.reject = reject;
-    return p;
-  }
+  const physics = usePhysics();
 
   const object = new THREE.Object3D();
   const loadPromises = [];
