@@ -5,7 +5,7 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import Simplex from './simplex-noise.js';
 import alea from './alea.js';
 import metaversefile from 'metaversefile';
-const {useFrame, useLocalPlayer, useLoaders, useUi, usePhysics} = metaversefile;
+const {useFrame, useLocalPlayer, useLoaders, useUi, usePhysics, useCleanup} = metaversefile;
 
 const {gltfLoader} = useLoaders();
 
@@ -48,6 +48,7 @@ export default () => {
 
   const object = new THREE.Object3D();
   const loadPromises = [];
+  const physicsIds = [];
   /* const ambientLight = new THREE.AmbientLight(0xFFFFFF);
   rootScene.add(ambientLight);
   // rootScene.ambientLight = ambientLight;
@@ -128,7 +129,8 @@ export default () => {
 
         if (physicsSpec) {
           const {position, quaternion, scale} = physicsSpec;
-          const floorPhysicsId = physics.addBoxGeometry(position, quaternion, scale, false);
+          const physicsId = physics.addBoxGeometry(position, quaternion, scale, false);
+          physicsIds.push(physicsId);
         }
       };
       const _getKey = p => p.toArray().join(':');
@@ -730,7 +732,8 @@ export default () => {
       })();
       // terrainMesh.position.set(center.x, 0, center.y);
       object.add(terrainMesh);
-      const terrainPhysicsId = physics.addGeometry(terrainMesh);
+      const physicsId = physics.addGeometry(terrainMesh);
+      physicsIds.push(physicsId);
     }
 
     (async () => {
@@ -998,7 +1001,8 @@ export default () => {
       const modularMeshSingle = new THREE.Mesh(geometry, material);
       modularMeshSingle.frustumCulled = false;
       object.add(modularMeshSingle);
-      const modularPhysicsId = physics.addGeometry(modularMeshSingle);
+      const physicsId = physics.addGeometry(modularMeshSingle);
+      physicsIds.push(physicsId);
     })();
 
     return object;
@@ -1028,6 +1032,12 @@ export default () => {
       object.add(m);
     }
   })();
+  
+  useCleanup(() => {
+    for (const physicsId of physicsIds) {
+      physics.removeGeometry(physicsId);
+    }
+  });
   
   return object;
 };
