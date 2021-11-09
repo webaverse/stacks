@@ -7,6 +7,7 @@ import alea from './alea.js';
 import metaversefile from 'metaversefile';
 const {useFrame, useLocalPlayer, useLoaders, useUi, usePhysics, useCleanup} = metaversefile;
 
+
 const {gltfLoader} = useLoaders();
 
 const parcelSize = 16;
@@ -670,7 +671,7 @@ export default () => {
             },
           },
           vertexShader: `\
-            #include <common>
+            ${THREE.ShaderChunk.common}
             // #define PI 3.1415926535897932384626433832795
             ${THREE.ShaderChunk.logdepthbuf_pars_vertex}
             attribute float y;
