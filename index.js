@@ -672,7 +672,6 @@ export default () => {
           },
           vertexShader: `\
             ${THREE.ShaderChunk.common}
-            // #define PI 3.1415926535897932384626433832795
             ${THREE.ShaderChunk.logdepthbuf_pars_vertex}
             attribute float y;
             attribute vec3 barycentric;
