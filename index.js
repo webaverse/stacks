@@ -671,8 +671,7 @@ export default () => {
             },
           },
           vertexShader: `\
-            ${THREE.ShaderChunk.common}
-            ${THREE.ShaderChunk.logdepthbuf_pars_vertex}
+
             attribute float y;
             attribute vec3 barycentric;
             // attribute float dynamicPositionY;
@@ -689,7 +688,6 @@ export default () => {
               vPosition = position;
               gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 
-              ${THREE.ShaderChunk.logdepthbuf_vertex}
             }
           `,
           fragmentShader: `\
@@ -707,7 +705,6 @@ export default () => {
             const vec3 lineColor1 = vec3(${new THREE.Color(0x66bb6a).toArray().join(', ')});
             const vec3 lineColor2 = vec3(${new THREE.Color(0x9575cd).toArray().join(', ')});
 
-            ${THREE.ShaderChunk.logdepthbuf_pars_fragment}
 
             float edgeFactor(vec3 bary, float width) {
               // vec3 bary = vec3(vBC.x, vBC.y, 1.0 - vBC.x - vBC.y);
@@ -728,7 +725,6 @@ export default () => {
               c += vPosition.y / 30.;
               gl_FragColor = vec4(c, 1.);
 
-              ${THREE.ShaderChunk.logdepthbuf_fragment}
             }
           `,
           side: THREE.DoubleSide,
