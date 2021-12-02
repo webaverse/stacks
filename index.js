@@ -4,8 +4,8 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 // import {renderer, camera, runtime, world, universe, physics, ui, rig, app, appManager, popovers} from 'app';
 import Simplex from './simplex-noise.js';
 import alea from './alea.js';
-import metaversefile from 'metaversefile';
-const {useFrame, useLocalPlayer, useLoaders, useUi, usePhysics, useCleanup} = metaversefile;
+import totum from 'totum';
+const {useFrame, useLocalPlayer, useLoaders, useUi, usePhysics, useCleanup} = totum;
 
 
 const {gltfLoader} = useLoaders();
