@@ -1037,6 +1037,7 @@ export default () => {
       m.position.copy(parcelSpec.position)
         .add(parcelSpec.size.clone().multiplyScalar(0.5));
       object.add(m);
+      m.traverse(child => child.updateMatrix())
       m.updateMatrixWorld();
     }
   })();
