@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-// import {renderer, camera, runtime, world, universe, physics, ui, rig, app, appManager, popovers} from 'app';
 import Simplex from './simplex-noise.js';
 import alea from './alea.js';
 import metaversefile from 'metaversefile';
@@ -9,12 +8,12 @@ const {useLoaders, usePhysics, useCleanup} = metaversefile;
 const {gltfLoader} = useLoaders();
 
 const localVector = new THREE.Vector3();
-const localVector2 = new THREE.Vector3();
-const localVector3 = new THREE.Vector3();
-const localVector2D = new THREE.Vector2();
-const localQuaternion = new THREE.Quaternion();
-const localEuler = new THREE.Euler();
-const localMatrix = new THREE.Matrix4();
+// const localVector2 = new THREE.Vector3();
+// const localVector3 = new THREE.Vector3();
+// const localVector2D = new THREE.Vector2();
+// const localQuaternion = new THREE.Quaternion();
+// const localEuler = new THREE.Euler();
+// const localMatrix = new THREE.Matrix4();
 const textureLoader = new THREE.TextureLoader();
 
 function _makePromise() {
@@ -49,7 +48,6 @@ export default () => {
         const simplex = this.simplexes[i];
         result += simplex.noise2D(x * (2**i), z * (2**i));
       }
-      // result /= this.simplexes.length;
       return result;
     }
   }
@@ -312,7 +310,6 @@ export default () => {
             })();
             const r = rng();
             if (r < 0.25) {
-              // direction.y += 0.5;
               geometryType = 'ramp';
             } else {
               geometryType = 'floor';
@@ -321,7 +318,6 @@ export default () => {
             const r = rng();
             if (r < 0.5) { // end
               direction = lastDirection.clone();
-              // direction.y = 0;
               geometryType = 'floor';
             } else { // continue
               direction = lastDirection.clone();
@@ -356,9 +352,6 @@ export default () => {
       const center = stacksBoundingBox.min.clone().add(stacksBoundingBox.max).divideScalar(2);
       const terrainMesh = (() => {
         const geometry = (() => {
-          // const s = 300;
-          // const maxManhattanDistance = localVector2D.set(0, 0).manhattanDistanceTo(localVector2D2.set(s/2, s/2));
-
           let geometry = new THREE.PlaneBufferGeometry(width, depth, width, depth)
             .applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0))))
             .applyMatrix4(new THREE.Matrix4().makeTranslation(center.x, 0, center.y));
@@ -369,7 +362,6 @@ export default () => {
             const d = Math.abs(x); 
             const f = Math.min(Math.max((d - 5) / 30, 0), 1)**2;
             const y = Math.min((10 + terrainSimplex.noise2D(x/500, z/500) * 10) * f, 100);
-            // console.log('got distance', z, d/maxDistance);
             geometry.attributes.position.array[i+1] = y;
           }
           for (let i = 0; i < geometry.attributes.uv.array.length; i += 2) {
@@ -696,14 +688,10 @@ export default () => {
         };
         _walkTestMap();
 
-        /* if (dy !== 4) {
-          continue;
-        } */
-
-        const _printTestMap = testMap => {
+        /* const _printTestMap = testMap => {
           console.log(testMap.map(l => l.join(',')).join('\n'));
         };
-        // _printTestMap(testMap);
+        _printTestMap(testMap); */
 
         const _getTestMap = (x, z) => {
           if (x === startPoint.x && z === startPoint.y) {
@@ -759,15 +747,9 @@ export default () => {
   (async () => {
     const p = new Promise((accept, reject) => {
       gltfLoader.load(`https://webaverse.github.io/street-assets/sakura.glb`, function(object) {
-        // console.log('loaded', object);
         object = object.scene;
         object.scale.multiplyScalar(3);
-        // object.position.y = 2;
-        // window.object = object;
-        // scene.add( object );
-        // app.object.add(object);
         accept(object);
-        // render();
       }, function progress() {}, reject);
     });
     loadPromises.push(p);
