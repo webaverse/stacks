@@ -1,28 +1,12 @@
 import * as THREE from 'three';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 // import {renderer, camera, runtime, world, universe, physics, ui, rig, app, appManager, popovers} from 'app';
 import Simplex from './simplex-noise.js';
 import alea from './alea.js';
 import metaversefile from 'metaversefile';
-const {useFrame, useLocalPlayer, useLoaders, useUi, usePhysics, useCleanup} = metaversefile;
-
+const {useLoaders, usePhysics, useCleanup} = metaversefile;
 
 const {gltfLoader} = useLoaders();
-
-const parcelSize = 16;
-const width = 10;
-const height = 10;
-const depth = 10;
-// const colorTargetSize = 64;
-// const voxelSize = 0.1;
-// const marchCubesTexSize = 2048;
-// const fov = 90;
-// const aspect = 1;
-// const raycastNear = 0.1;
-// const raycastFar = 100;
-// const raycastDepth = 3;
-// const walkSpeed = 0.0015;
 
 const localVector = new THREE.Vector3();
 const localVector2 = new THREE.Vector3();
@@ -50,13 +34,6 @@ export default () => {
   const object = new THREE.Object3D();
   const loadPromises = [];
   const physicsIds = [];
-  /* const ambientLight = new THREE.AmbientLight(0xFFFFFF);
-  rootScene.add(ambientLight);
-  // rootScene.ambientLight = ambientLight;
-  const directionalLight = new THREE.DirectionalLight(0xFFFFFF);
-  directionalLight.position.set(1, 2, 3);
-  rootScene.add(directionalLight);
-  // rootScene.directionalLight = directionalLight; */
 
   class MultiSimplex {
     constructor(seed, octaves) {
@@ -77,21 +54,17 @@ export default () => {
     }
   }
 
-  const gridSimplex = new MultiSimplex('lol', 6);
-  const gridSimplex2 = new MultiSimplex('lol2', 6);
   const terrainSimplex = new MultiSimplex('lol3', 6);
-
-  const w = 4;
-  const stacksBoundingBox = new THREE.Box2(
-    new THREE.Vector2(5, 0),
-    new THREE.Vector2(105, 100),
-  );
 
   const parcelSpecs = [];
   const stacksMesh = (() => {
     const object = new THREE.Object3D();
 
     const w = 4;
+    const stacksBoundingBox = new THREE.Box2(
+      new THREE.Vector2(5, 0),
+      new THREE.Vector2(105, 100),
+    );
 
     (async () => {
       const p = new Promise((accept, reject) => {
@@ -108,16 +81,15 @@ export default () => {
         }, function progress() {}, reject);
       });
       loadPromises.push(p);
+
       const fortniteMesh = await p;
       const floorMesh = fortniteMesh.getObjectByName('floor');
       const wallMesh = fortniteMesh.getObjectByName('wall');
       const rampMesh = fortniteMesh.getObjectByName('ramp');
       
       const position = new THREE.Vector3();
-      // const quaternion = new THREE.Quaternion();
       const rng = alea('lol');
 
-      // const s = 0.95;
       const floorGeometry = floorMesh.geometry.clone();
       const wallGeometry = wallMesh.geometry.clone()
         .applyMatrix4(new THREE.Matrix4().makeScale(1, 4/3, 1));
@@ -356,7 +328,6 @@ export default () => {
               geometryType = 'ramp';
             }
           }
-          // console.log('got direction', direction.toArray(), geometryType);
 
           const nextPosition = position.clone().add(direction.clone().multiplyScalar(w));
           const k = _getKey(nextPosition);
@@ -370,216 +341,14 @@ export default () => {
           }
         }
       }
-      // console.log('draw range', indices, indexIndex/3);
 
       const geometry = BufferGeometryUtils.mergeBufferGeometries(geometries);
-      /* geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
-      geometry.setIndex(new THREE.BufferAttribute(indices, 1));
-      geometry.setDrawRange(0, indexIndex); */
-
-      /* const material = new THREE.ShaderMaterial({
-        uniforms: {
-        },
-        vertexShader: `\
-          precision highp float;
-          precision highp int;
-
-          uniform vec4 uSelectRange;
-
-          // attribute vec3 barycentric;
-          attribute float ao;
-          attribute float skyLight;
-          attribute float torchLight;
-
-          varying vec3 vViewPosition;
-          varying vec2 vUv;
-          varying vec3 vBarycentric;
-          varying float vAo;
-          varying float vSkyLight;
-          varying float vTorchLight;
-          varying vec3 vSelectColor;
-          varying vec2 vWorldUv;
-          varying vec3 vPos;
-          varying vec3 vNormal;
-
-          void main() {
-            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-            gl_Position = projectionMatrix * mvPosition;
-
-            vViewPosition = -mvPosition.xyz;
-            vUv = uv;
-            // vBarycentric = barycentric;
-            float vid = float(gl_VertexID);
-            if (mod(vid, 3.) < 0.5) {
-              vBarycentric = vec3(1., 0., 0.);
-            } else if (mod(vid, 3.) < 1.5) {
-              vBarycentric = vec3(0., 1., 0.);
-            } else {
-              vBarycentric = vec3(0., 0., 1.);
-            }
-            vAo = ao/27.0;
-            vSkyLight = skyLight/8.0;
-            vTorchLight = torchLight/8.0;
-
-            vSelectColor = vec3(0.);
-            if (
-              position.x >= uSelectRange.x &&
-              position.z >= uSelectRange.y &&
-              position.x < uSelectRange.z &&
-              position.z < uSelectRange.w
-            ) {
-              vSelectColor = vec3(${new THREE.Color(0x4fc3f7).toArray().join(', ')});
-            }
-
-            vec3 vert_tang;
-            vec3 vert_bitang;
-            if (abs(normal.y) < 0.05) {
-              if (abs(normal.x) > 0.95) {
-                vert_bitang = vec3(0., 1., 0.);
-                vert_tang = normalize(cross(vert_bitang, normal));
-                vWorldUv = vec2(dot(position, vert_tang), dot(position, vert_bitang));
-              } else {
-                vert_bitang = vec3(0., 1., 0.);
-                vert_tang = normalize(cross(vert_bitang, normal));
-                vWorldUv = vec2(dot(position, vert_tang), dot(position, vert_bitang));
-              }
-            } else {
-              vert_tang = vec3(1., 0., 0.);
-              vert_bitang = normalize(cross(vert_tang, normal));
-              vWorldUv = vec2(dot(position, vert_tang), dot(position, vert_bitang));
-            }
-            vWorldUv /= 4.0;
-            vec3 vert_norm = normal;
-
-            vec3 t = normalize(normalMatrix * vert_tang);
-            vec3 b = normalize(normalMatrix * vert_bitang);
-            vec3 n = normalize(normalMatrix * vert_norm);
-            mat3 tbn = transpose(mat3(t, b, n));
-
-            vPos = position;
-            vNormal = normal;
-          }
-        `,
-        fragmentShader: `\
-          precision highp float;
-          precision highp int;
-
-          #define PI 3.1415926535897932384626433832795
-
-          uniform float sunIntensity;
-          uniform sampler2D tex;
-          // uniform float uTime;
-          uniform vec3 sunDirection;
-          float parallaxScale = 0.3;
-          float parallaxMinLayers = 50.;
-          float parallaxMaxLayers = 50.;
-
-          varying vec3 vViewPosition;
-          varying vec2 vUv;
-          varying vec3 vBarycentric;
-          varying float vAo;
-          varying float vSkyLight;
-          varying float vTorchLight;
-          varying vec3 vSelectColor;
-          varying vec2 vWorldUv;
-          varying vec3 vPos;
-          varying vec3 vNormal;
-
-          float edgeFactor(vec2 uv) {
-            float divisor = 0.5;
-            float power = 0.5;
-            return min(
-              pow(abs(uv.x - round(uv.x/divisor)*divisor), power),
-              pow(abs(uv.y - round(uv.y/divisor)*divisor), power)
-            ) > 0.1 ? 0.0 : 1.0;
-          }
-
-          vec3 getTriPlanarBlend(vec3 _wNorm){
-            // in wNorm is the world-space normal of the fragment
-            vec3 blending = abs( _wNorm );
-            // blending = normalize(max(blending, 0.00001)); // Force weights to sum to 1.0
-            // float b = (blending.x + blending.y + blending.z);
-            // blending /= vec3(b, b, b);
-            // return min(min(blending.x, blending.y), blending.z);
-            blending = normalize(blending);
-            return blending;
-          }
-
-          void main() {
-            // vec3 diffuseColor1 = vec3(${new THREE.Color(0x1976d2).toArray().join(', ')});
-            vec3 diffuseColor2 = vec3(${new THREE.Color(0x64b5f6).toArray().join(', ')});
-            float normalRepeat = 1.0;
-
-            vec3 blending = getTriPlanarBlend(vNormal);
-            float xaxis = edgeFactor(vPos.yz * normalRepeat);
-            float yaxis = edgeFactor(vPos.xz * normalRepeat);
-            float zaxis = edgeFactor(vPos.xy * normalRepeat);
-            float f = xaxis * blending.x + yaxis * blending.y + zaxis * blending.z;
-
-            // vec2 worldUv = vWorldUv;
-            // worldUv = mod(worldUv, 1.0);
-            // float f = edgeFactor();
-            // float f = max(normalTex.x, normalTex.y, normalTex.z);
-
-            float d = gl_FragCoord.z/gl_FragCoord.w;
-            vec3 c = diffuseColor2; // mix(diffuseColor1, diffuseColor2, abs(vPos.y/10.));
-            // float f2 = 1. + d/10.0;
-            gl_FragColor = vec4(c, 0.5 + max(f, 0.3));
-          }
-        `,
-        transparent: true,
-        // polygonOffset: true,
-        // polygonOffsetFactor: -1,
-        // polygonOffsetUnits: 1,
-      }); */
       
       const material = floorMesh.material;
       const roadMesh = new THREE.Mesh(geometry, material);
       roadMesh.frustumCulled = false;
       object.add(roadMesh);
-      // const roadPhysicsId = physics.addGeometry(roadMesh);
     })();
-
-    /* (async () => {
-      const signsMesh = await new Promise((accept, reject) => {
-        gltfLoader.load(`https://webaverse.github.io/street-assets/sign.glb`, function(object) {
-          object = object.scene;
-
-          accept(object);
-        }, function progress() {}, reject);
-      });
-
-      const signMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(12, 3), new THREE.MeshBasicMaterial({
-        color: 0x111111,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.9,
-      }));
-      signMesh.position.set(10/2, 2, 10);
-      signMesh.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2);
-
-      const japanese = signsMesh.getObjectByName('Japanese');
-      
-      japanese.position.set(-4, 0, 0.05);
-      japanese.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2));
-      japanese.material = new THREE.MeshBasicMaterial({
-        color: 0x26c6da,
-        side: THREE.DoubleSide,
-      });
-      signMesh.add(japanese);
-
-      const english = signsMesh.getObjectByName('English');
-      english.position.set(2, -0.5, 0.01);
-      english.quaternion.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2));
-      english.material = new THREE.MeshBasicMaterial({
-        color: 0xec407a,
-        side: THREE.DoubleSide,
-      });
-      signMesh.add(english);
-
-      object.add(signMesh);
-    })(); */
 
     {
       const width = stacksBoundingBox.max.x - stacksBoundingBox.min.x;
@@ -607,38 +376,10 @@ export default () => {
             geometry.attributes.uv.array[i] *= width;
             geometry.attributes.uv.array[i+1] *= depth;
           }
-          /* const dynamicPositionYs = new Float32Array(geometry.attributes.position.array.length/3);
-          for (let i = 0; i < dynamicPositionYs.length; i += 3) {
-            const x = geometry.attributes.position.array[i*3];
-            const z = geometry.attributes.position.array[i*3+2];
-
-            // const d = Math.abs(x); 
-            // const f = Math.min(Math.max((d - 5) / 30, 0), 1)**2;
-
-            const y = simplex3.noise2D(x/500, z/500) * 3;
-            dynamicPositionYs[i] = y;
-            dynamicPositionYs[i+1] = y;
-            dynamicPositionYs[i+2] = y;
-          }
-          geometry.setAttribute('dynamicPositionY', new THREE.BufferAttribute(dynamicPositionYs, 1)); */
           
           geometry.computeVertexNormals();
 
           geometry = geometry.toNonIndexed();
-          /* const barycentrics = new Float32Array(geometry.attributes.position.array.length);
-          let barycentricIndex = 0;
-          for (let i = 0; i < geometry.attributes.position.array.length; i += 9) {
-            barycentrics[barycentricIndex++] = 1;
-            barycentrics[barycentricIndex++] = 0;
-            barycentrics[barycentricIndex++] = 0;
-            barycentrics[barycentricIndex++] = 0;
-            barycentrics[barycentricIndex++] = 1;
-            barycentrics[barycentricIndex++] = 0;
-            barycentrics[barycentricIndex++] = 0;
-            barycentrics[barycentricIndex++] = 0;
-            barycentrics[barycentricIndex++] = 1;
-          }
-          geometry.setAttribute('barycentric', new THREE.BufferAttribute(barycentrics, 3)); */
 
           return geometry;
         })();
@@ -737,7 +478,6 @@ export default () => {
         const mesh = new THREE.Mesh(geometry, material);
         return mesh;
       })();
-      // terrainMesh.position.set(center.x, 0, center.y);
       object.add(terrainMesh);
       const physicsId = physics.addGeometry(terrainMesh);
       physicsIds.push(physicsId);
