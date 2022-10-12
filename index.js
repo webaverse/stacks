@@ -1,12 +1,17 @@
 import * as THREE from 'three';
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import Simplex from './simplex-noise.js';
 import alea from './alea.js';
 import metaversefile from 'metaversefile';
-const {useLoaders, usePhysics, useCleanup} = metaversefile;
+const {useThreeUtils, useLoaders, usePhysics, useCleanup} = metaversefile;
+
+//
+
+const {BufferGeometryUtils} = useThreeUtils();
 
 const loaders = useLoaders();
 const {gltfLoader} = loaders;
+
+//
 
 const localVector = new THREE.Vector3();
 // const localVector2 = new THREE.Vector3();
@@ -17,16 +22,7 @@ const localVector = new THREE.Vector3();
 // const localMatrix = new THREE.Matrix4();
 const textureLoader = new THREE.TextureLoader();
 
-/* function _makePromise() {
-  let accept, reject;
-  const p = new Promise((a, r) => {
-    accept = a;
-    reject = r;
-  });
-  p.accept = accept;
-  p.reject = reject;
-  return p;
-} */
+//
 
 const prefix = 'Vol_21_4';
 
